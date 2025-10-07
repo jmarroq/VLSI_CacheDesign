@@ -24,7 +24,7 @@ component and2
       output   : out std_logic);
     end component;
 
-  component inverter is
+  component inverter 
   port (
     input    : in  std_logic;
     output   : out std_logic);

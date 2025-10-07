@@ -15,7 +15,20 @@ entity and3 is
 end and3;
 
 architecture structural of and3 is
+  
+component and2
+    port (
+      input1 : in  std_logic;
+      input2 : in  std_logic;
+      output : out std_logic
+    );
+  end component;
+
+  signal temp: std_logic;
+  for and2_1, and2_2: and2 use entity work.and2(structural);
 
 begin
-  output <= input2 and input1 and input3;
+  and2_1: and2 port map (input1, input2, temp);
+  and2_2: and2 port map (temp, input3, output);
+
 end structural;

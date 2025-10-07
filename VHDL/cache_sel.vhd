@@ -38,8 +38,8 @@ for inverter_1: inverter use entity work.inverter(structural);
 
 begin 
   inverter_1: inverter port map (RD_WR, RD_WR_not);
-  and2_1: and2 port map (CE, RD_WR_not, RE);
-  and2_2: and2 port map (CE, RD_WR, WE);
+  and2_1: and2 port map (CE, RD_WR, RE);
+  and2_2: and2 port map (CE, RD_WR_not, WE);
 end structural;
   
   

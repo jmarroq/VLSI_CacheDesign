@@ -11,8 +11,7 @@ entity cache_cell is
         CE     : in std_logic;
         RD_WR  : in std_logic;
         D_in   : in std_logic;
-        D_out  : out std_logic
-        Q      : out std_logic);
+        D_out  : out std_logic);
 end cache_cell;
 
 architecture structural of cache_cell is 

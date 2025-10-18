@@ -6,7 +6,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 
-entity cache_block is
+entity cache_data_block is
   port (
         CE_index     : in std_logic_vector(3 downto 0);
         CE_offset    : in std_logic_vector(3 downto 0);
@@ -17,7 +17,7 @@ entity cache_block is
         V_out  : out std_logic;
         D_in   : in std_logic_vector(7 downto 0);
         D_out  : out std_logic_vector(7 downto 0));
-end cache_block;
+end cache_data_block;
 
 architecture structural of cache_block is
 

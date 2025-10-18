@@ -38,7 +38,7 @@ for chip_enable: and2 use entity  work.and2(structural);
 signal CE std_logic;
     
 begin
-    chip_enable: and2 port map(CE_index, CE_offset, CE
+    chip_enable: and2 port map(CE_index, CE_offset, CE);
     gen_cell: for i in 0 to 7 generate
       cell_i: cache_cell port map
         (

@@ -1,4 +1,4 @@
--- Entity: cache_line
+-- Entity: cache_line_data
 -- Architecture: structural
 -- Author: Juan Marroquin
 --
@@ -6,7 +6,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 
-entity cache_line is 
+entity cache_line_data is 
     port (
         CE_index     : in std_logic;
         CE_offset    : in std_logic_vector(3 downto 0);
@@ -15,7 +15,7 @@ entity cache_line is
         D_out  : out std_logic_vector(7 downto 0));
 end cache_line;
 
-architecture structural of cache_line is
+architecture structural of cache_line_data is
 
 -- REQUIRED COMPONENTS
 components cache_byte is 

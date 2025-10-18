@@ -3,6 +3,9 @@
 -- Author: Juan Marroquin
 --
 
+library IEEE;
+use IEEE.std_logic_1164.all;
+
 entity full_cache_line is 
   port (
         CE_index     : in std_logic;

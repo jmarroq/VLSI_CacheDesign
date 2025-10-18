@@ -18,7 +18,7 @@ end cache_line;
 architecture structural of cache_line_data is
 
 -- REQUIRED COMPONENTS
-components cache_byte is 
+component cache_byte is 
     port (
         CE_index     : in std_logic;
         CE_offset    : in std_logic;

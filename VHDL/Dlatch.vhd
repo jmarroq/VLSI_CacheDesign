@@ -53,6 +53,7 @@ and2_2: and2 port map(D, EN, R);
 nor2_1: nor2 port map(S, Q_n_int, Q_int);
 nor2_2: nor2 port map(R, Q_int, Q_n_int);
 
+-- can you do this for structural code / why didnt you just use Q_n and Q in the port mapping
 Q_n <= Q_n_int;
 Q <= Q_int;
 

@@ -1,0 +1,133 @@
+-- Test Bench for Cache Read FSM (Control Only)
+-- Simulates a 2-cycle read hit scenario, with mixed-edge timing.
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity cache_fsm_tb is
+end cache_fsm_tb;
+
+architecture behavioral of cache_fsm_tb is
+
+  -- Component declaration for the Unit Under Test (UUT)
+  component cache_read_fsm is
+    port (
+      clk           : in  std_logic;
+      reset         : in  std_logic;
+      start         : in  std_logic;
+      read_write    : in  std_logic;
+      cvt           : in  std_logic;
+      busy          : out std_logic;
+      output_enable : out std_logic;
+      decoder_enable: out std_logic
+    );
+  end component;
+
+  -- Constants and Signals
+  constant CLK_PERIOD : time := 10 ns;
+  constant DUMMY_DATA : std_logic_vector(7 downto 0) := x"FF";
+
+  -- FSM Input Signals
+  signal clk_s           : std_logic := '0';
+  signal reset_s         : std_logic := '0';
+  signal start_s         : std_logic := '0';
+  signal read_write_s    : std_logic := '0';
+  signal cvt_s           : std_logic := '0'; -- Hit signal (from external comparator)
+  
+  -- FSM Output Signals (UUT outputs)
+  signal busy_s          : std_logic;
+  signal output_enable_s : std_logic;
+  signal decoder_enable_s: std_logic;
+
+  -- External Data Path Signals (for simulation)
+  signal data_internal_reg : std_logic_vector(7 downto 0) := (others => '0');
+  signal data_bus_s        : std_logic_vector(7 downto 0) := (others => 'Z'); -- Simulate tri-state bus
+
+begin
+
+  -- Instantiate the Unit Under Test (UUT)
+  uut : cache_read_fsm
+    port map (
+      clk            => clk_s,
+      reset          => reset_s,
+      start          => start_s,
+      read_write     => read_write_s,
+      cvt            => cvt_s,
+      busy           => busy_s,
+      output_enable  => output_enable_s,
+      decoder_enable => decoder_enable_s
+    );
+
+  -- 1. Clock Generation Process
+  clk_process : process
+  begin
+    loop
+      wait for CLK_PERIOD / 2;
+      clk_s <= not clk_s;
+    end loop;
+  end process;
+
+  -- 2. Data Path Simulation Process
+  -- This mimics the register that holds the final data, latched on the negative edge
+  -- when the decoder is enabled.
+  data_latch_process : process(clk_s)
+  begin
+    if falling_edge(clk_s) then
+      -- In a structural path, the latching happens when decoder_enable goes high.
+      -- Since decoder_enable and output_enable align in the FSM, we use decoder_enable here.
+      if decoder_enable_s = '1' then
+        data_internal_reg <= DUMMY_DATA; -- Latch the data read from the cache block
+      end if;
+    end if;
+  end process;
+  
+  -- 3. Data Output Driver (Tri-state simulation)
+  -- The internal register drives the external data bus only when output_enable is active.
+  data_driver : process(output_enable_s, data_internal_reg)
+  begin
+    if output_enable_s = '1' then
+      data_bus_s <= data_internal_reg;
+    else
+      data_bus_s <= (others => 'Z'); -- High-Z state when not driving
+    end if;
+  end process;
+
+  -- 4. Stimulus Generation Process (The actual test scenario)
+  stim_process : process
+  begin
+    -- Initial Reset
+    reset_s <= '1';
+    wait for 1 * CLK_PERIOD;
+    reset_s <= '0';
+    wait for CLK_PERIOD / 2; -- Align to the first rising edge after reset release
+
+    report "Simulation Start" severity note;
+
+    -- CLK 1 (Rising Edge): CPU initiates read operation
+    start_s      <= '1';
+    read_write_s <= '1';
+    wait for CLK_PERIOD;
+
+    -- CLK 2 (Rising Edge): CPU removes start, FSM is in BUSY_ACTIVE
+    start_s      <= '0';
+    -- Simulate external CVT logic completing its check successfully:
+    cvt_s        <= '1'; 
+    wait for CLK_PERIOD; -- FSM transitions to S_READ_DONE on this edge
+
+    -- CLK 3 (Rising Edge): Data is ready and stable (data_bus is active)
+    -- We hold the CVT for one more cycle to ensure the FSM stays in S_READ_DONE
+    cvt_s        <= '0'; -- CVT signal can drop after the hit is registered (or earlier)
+    wait for CLK_PERIOD;
+
+    -- CLK 4 (Rising Edge): FSM transitions back to S_IDLE
+    wait for CLK_PERIOD; 
+    
+    report "Simulation Finished." severity note;
+    -- The following lines ensure GHDL terminates cleanly
+    wait for 10 ns;
+    assert false severity failure;
+
+  end process;
+  
+end behavioral;

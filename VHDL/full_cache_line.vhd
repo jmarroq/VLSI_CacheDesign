@@ -47,18 +47,30 @@ component valid_bit is
         V_out  : out std_logic);
 end component;
 
+component inverter
+  port (
+    input   : in std_logic;
+    output   : out std_logic);
+end component;
+
 for cache_line_data_inst: cache_line_data use entity work.cache_line_data.work(structural);
 for tag_inst: tag use entity work.tag.work(structural);
 for valid_bit_inst: valid_bit use entity work.valid_bit.work(structural);
+for inverter_inst: inverter use entity work.inverter.work(structural);
 
   signal CE : std_logic;
+  signal CE_tag_valid : std_logic;
+  signal RD_WR_n : std_logic;
+  
 
   
 begin
+  inverter_inst: inverter port map(RD_WR, RD_WR_n);
   CE <= CE_index;
+  CE_tag_valid <= CE_index AND RD_WR_n AND CE_offset(0);
   cache_line_data_inst: cache_line_data port map(CE_index, CE_offset, RD_WR, D_in, D_out);
-  tag_inst: tag port map(CE,RD_WR, Tag_in, Tag_out);
-  valid_bit_inst: valid_bit port map(CE, RD_WR, V_in, V_out);
+  tag_inst: tag port map( CE_tag_valid,RD_WR, Tag_in, Tag_out);
+  valid_bit_inst: valid_bit port map( CE_tag_valid, RD_WR, V_in, V_out);
 
 end structural;
 

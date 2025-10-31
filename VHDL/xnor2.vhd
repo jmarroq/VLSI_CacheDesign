@@ -31,7 +31,7 @@ architecture structural of xnor2 is
   end component;
 
   signal temp: std_logic;
-  for xnor2_1: xor2 use entity work.xor2(structural);
+  for xor2_1: xor2 use entity work.xor2(structural);
   for inv1: inverter use entity work.inverter(structural);
 
 begin

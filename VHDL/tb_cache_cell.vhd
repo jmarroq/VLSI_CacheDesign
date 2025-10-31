@@ -22,13 +22,13 @@ architecture tb of tb_cache_cell is
 	end component;
 
 	-- DUT signals
-	signal CE_tb, RD_WR_tb, D_in_tb, D_out_tb : std_logic;
+	signal CE_tb, RD_WR_tb, reset_tb, D_in_tb, D_out_tb : std_logic;
 begin
-	UUT: cache_cell
+	UUT: cache_cell_sr
     	port map(
         	CE  	=> CE_tb,
         	RD_WR   => RD_WR_tb,
-			reset  => reset_tb,
+		reset  => reset_tb,
         	D_in	=> D_in_tb,
         	D_out   => D_out_tb
     	);
@@ -42,25 +42,25 @@ begin
     	wait for 20 ns;
    	 
     	-- Chip Enable on, write enable, 0 data,
-    	CE_tb <= '1'; RD_WR_tb <= '0'; D_in_tb <= '0';
+    	CE_tb <= '1'; RD_WR_tb <= '1'; D_in_tb <= '0'; reset_tb <= '0';
     	wait for 20 ns;
     	-- Chip Enable on, read enable, 0 data
-    	CE_tb <= '1'; RD_WR_tb <= '1'; D_in_tb <= '0';
+    	CE_tb <= '1'; RD_WR_tb <= '1'; D_in_tb <= '0'; reset_tb <= '0';
     	wait for 20 ns;
    	 
     	-- Chip Enable on, write enable, 1 Data
-    	CE_tb <= '1'; RD_WR_tb <= '0'; D_in_tb <= '1';
+    	CE_tb <= '1'; RD_WR_tb <= '1'; D_in_tb <= '1'; reset_tb <= '0';
     	wait for 20 ns;
     	-- Chip Enable on, read enable, 1 Data
-    	CE_tb <= '1'; RD_WR_tb <= '1'; D_in_tb <= '1';
+    	CE_tb <= '1'; RD_WR_tb <= '1'; D_in_tb <= '1'; reset_tb <= '0';
     	wait for 20 ns;
    	 
             	-- Chip Enable on, write enable, 1 Data
-    	CE_tb <= '1'; RD_WR_tb <= '0'; D_in_tb <= '1';
+    	CE_tb <= '1'; RD_WR_tb <= '0'; D_in_tb <= '1'; reset_tb <= '0';
     	wait for 40 ns;
    	 
             	-- Chip Enable on, write enable, 1 Data
-    	CE_tb <= '1'; RD_WR_tb <= '0'; D_in_tb <= '0';
+    	CE_tb <= '1'; RD_WR_tb <= '0'; D_in_tb <= '0'; reset_tb <= '0';
     	wait for 40 ns;
 
     	wait;

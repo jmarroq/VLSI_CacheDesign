@@ -121,7 +121,7 @@ begin
     -- INPUT REGISTER (captures {start, rw, cvt} during S_LATCH)
     --------------------------------------------------------------------
     cpu_in <= start & read_write & cvt;
-    busy     <= internal_busy;
+    busy     <= busy_internal;
 
     InputRegister: input_reg
       port map(
@@ -193,7 +193,7 @@ begin
       port map(
         clk      => clk,
         reset    => reset,
-        busy     => internal_busy,
+        busy     => busy_internal,
 
         -- POS flags
         c0_pos   => c0_pos,

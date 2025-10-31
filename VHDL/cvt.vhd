@@ -1,4 +1,4 @@
--- Entity: CVT
+-- Entity: cvt
 -- Architecture: structural
 -- Author: hmathew1
 --

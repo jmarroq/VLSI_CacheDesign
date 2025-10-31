@@ -109,11 +109,11 @@ begin
     --------------------------------------------------------------------
     -- DECODE latch_en WHEN state = 001 (S_LATCH)
     --------------------------------------------------------------------
-    invS2: inverter port map(state(2), nS2);
-    invS1: inverter port map(state(1), nS1);
+    invS2: inverter port map(next_state(2), nS2);
+    invS1: inverter port map(next_state(1), nS1);
 
     and_l0: and2 port map(nS2, nS1, latch_tmp);
-    and_l1: and2 port map(latch_tmp, state(0), latch_en);
+    and_l1: and2 port map(latch_tmp, next_state(0), latch_en);
 
     --------------------------------------------------------------------
     -- INPUT REGISTER (captures {start, rw, cvt} during S_LATCH)
@@ -151,9 +151,9 @@ begin
     --------------------------------------------------------------------
     OutputLogic: output_logic
       port map(
-        state_in       => state,
-        rw_lat         => rw_lat,
-        cvt_lat        => cvt_lat,
+        state_in       => state, 
+        rw_lat         => rw_lat, 
+        cvt_lat        => cvt_lat, 
 
         -- POS flags
         c0_pos         => c0_pos,

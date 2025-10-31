@@ -46,13 +46,15 @@ signal A_not, B_not, AnotB, AnotB: std_logic;
   for or2_1: or2 use entity work.or2(structural);
 
 begin
-    -- get inverted A and B
-  inverter_1: inverter port map (input1, A_not);
-  inverter_2: inverter port map (input2, B_not);
+  -- invert inputs
+  inverter_1 : inverter port map(input1, A_not);
+  inverter_2 : inverter port map(input2, B_not);
 
-  and2_ABnot: and2 port map (A, B_not, ABnot);
-  and2_AnotB: and2 port map (A_not, B, AnotB);
+  -- (A and not B), (not A and B)
+  and2_ABnot : and2 port map(input1, B_not, ABnot);
+  and2_AnotB : and2 port map(A_not, input2, AnotB);
 
-  or2_1: or2 port map (ABnot, AnotB, output);
+  -- combine results
+  or2_1 : or2 port map(ABnot, AnotB, output);
 
 end structural;

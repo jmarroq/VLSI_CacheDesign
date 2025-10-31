@@ -9,13 +9,14 @@ entity cache_cell_sr is
 	port (
     	CE 	: in std_logic;
     	RD_WR  : in std_logic;
+		reset	: in std_logic;
     	D_in   : in std_logic;
     	D_out  : out std_logic);
 end cache_cell_sr;
 architecture structural of cache_cell_sr is
   
 -- REQUIRED COMPONENTS
-component cache_sel_
+component cache_sel
     port (
         CE      : in  std_logic;
         RD_WR   : in  std_logic;

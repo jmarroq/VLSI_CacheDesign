@@ -25,7 +25,7 @@ component cache_sel
     	WE  	: out std_logic);
 	end component;
 
-component Dlatch
+component Dlatch_Outdated
 	port (
   	D  	: in  std_logic;
   	EN 	: in  std_logic;
@@ -53,14 +53,14 @@ signal RE_bar 	: std_logic;
 signal Q_int, Q_n_int  : std_logic;
 
 for cache_selector1 : cache_sel use entity work.cache_sel(structural);
-for Dlatch1    	: Dlatch	use entity work.Dlatch(structural);
+for Dlatch1    	: Dlatch_Outdated	use entity work.Dlatch_Outdated(structural);
 for tx1        	: tx    	use entity work.tx(structural);
 for inverter1  	: inverter  use entity work.inverter(structural);
 
 
 begin
 	cache_selector1: cache_sel port map (CE, RD_WR, RE_signal, WE_signal);
-	Dlatch1: Dlatch port map (D_in, WE_signal, Q_int, Q_n_int);
+	Dlatch1: Dlatch_Outdated port map (D_in, WE_signal, Q_int, Q_n_int);
 	inverter1: inverter port map (RE_signal, RE_bar);
 	tx1: tx port map (RE_signal, RE_bar, Q_int, D_out);
 

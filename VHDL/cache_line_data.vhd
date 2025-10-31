@@ -1,4 +1,4 @@
--- Entity: cache_line_data
+-- Entity: cache_cell
 -- Architecture: structural
 -- Author: Juan Marroquin
 --
@@ -6,39 +6,63 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 
-entity cache_line_data is
+entity cache_cell is
 	port (
-    	CE_index 	: in std_logic;
-    	CE_offset	: in std_logic_vector(3 downto 0);
+    	CE 	: in std_logic;
     	RD_WR  : in std_logic;
-    	D_in   : in std_logic_vector(7 downto 0);
-    	D_out  : out std_logic_vector(7 downto 0));
-end cache_line_data;
+    	D_in   : in std_logic;
+    	D_out  : out std_logic);
+end cache_cell;
 
-architecture structural of cache_line_data is
+architecture structural of cache_cell is
 
 -- REQUIRED COMPONENTS
-component cache_byte is
+component cache_sel
 	port (
-    	CE_index 	: in std_logic;
-    	CE_offset	: in std_logic;
-    	RD_WR  : in std_logic;
-    	D_in   : in std_logic_vector(7 downto 0);
-    	D_out  : out std_logic_vector(7 downto 0));
-end component;  
+    	CE  	: in  std_logic;
+    	RD_WR   : in  std_logic;
+    	RE  	: out std_logic;
+    	WE  	: out std_logic);
+	end component;
+
+component Dlatch_Outdated
+	port (
+  	D  	: in  std_logic;
+  	EN 	: in  std_logic;
+  	Q  	: out std_logic;
+  	Q_n	: out std_logic);
+	end component;
+ 
+component tx
+	port (
+  	sel   : in  std_logic;
+  	selnot   : in  std_logic;
+  	input	: in  std_logic;
+  	output   : out std_logic);
+	end component;
+
+component inverter
+  port (
+	input   : in std_logic;
+	output   : out std_logic);
+end component;
+ 
+-- SIGNALS
+signal RE_signal, WE_signal: std_logic;
+signal RE_bar 	: std_logic;
+signal Q_int, Q_n_int  : std_logic;
+
+for cache_selector1 : cache_sel use entity work.cache_sel(structural);
+for Dlatch1    	: Dlatch_Outdated	use entity work.Dlatch_Outdated(structural);
+for tx1        	: tx    	use entity work.tx(structural);
+for inverter1  	: inverter  use entity work.inverter(structural);
 
 
 begin
-	gen_byte: for i in 0 to 3 generate
-    	byte_i: entity work.cache_byte(structural)
-    	port map
-    	(
-    	CE_index 	=> CE_index,
-    	CE_offset	=> CE_offset(i),
-    	RD_WR  =>  RD_WR,
-    	D_in   => D_in,
-    	D_out  => D_out
-    	);
-   	 
-end generate;
+	cache_selector1: cache_sel port map (CE, RD_WR, RE_signal, WE_signal);
+	Dlatch1: Dlatch_Outdated port map (D_in, WE_signal, Q_int, Q_n_int);
+	inverter1: inverter port map (RE_signal, RE_bar);
+	tx1: tx port map (RE_signal, RE_bar, Q_int, D_out);
+
 end structural;
+

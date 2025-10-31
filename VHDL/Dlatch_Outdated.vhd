@@ -4,38 +4,38 @@
 --
 
 library STD;
-library IEEE;                      
-use IEEE.std_logic_1164.all;       
+library IEEE;                 	 
+use IEEE.std_logic_1164.all;  	 
 
-entity Dlatch is                      
-    port (
-          D   : in  std_logic;
-          EN  : in  std_logic;
-          Q   : out std_logic;
-          Q_n : out std_logic); 
-end Dlatch;                          
+entity Dlatch_Outdated is                 	 
+	port (
+      	D   : in  std_logic;
+      	EN  : in  std_logic;
+      	Q   : out std_logic;
+      	Q_n : out std_logic);
+end Dlatch_Outdated;                     	 
 
-architecture structural of Dlatch is 
+architecture structural of Dlatch_Outdated is
 
 -- REQUIRED COMPONENTS
 component and2
   port (
-    input1   : in  std_logic;
-    input2   : in  std_logic;
-    output   : out std_logic);
+	input1   : in  std_logic;
+	input2   : in  std_logic;
+	output   : out std_logic);
 end component;
 
 component nor2
   port (
-    input1   : in  std_logic;
-    input2   : in  std_logic;
-    output   : out std_logic);
+	input1   : in  std_logic;
+	input2   : in  std_logic;
+	output   : out std_logic);
 end component;
 
 component inverter
   port (
-    input   : in std_logic;
-    output   : out std_logic);
+	input   : in std_logic;
+	output   : out std_logic);
 end component;
 
 -- SIGNALS
@@ -45,7 +45,7 @@ signal Q_int, Q_n_int: std_logic;
 for and2_1, and2_2: and2 use entity work.and2(structural);
 for nor2_1, nor2_2: nor2 use entity work.nor2(structural);
 for inverter_1: inverter use entity work.inverter(structural);
-  
+ 
 begin
 inverter_1: inverter port map(D, D_n);
 and2_1: and2 port map(D_n, EN, S);

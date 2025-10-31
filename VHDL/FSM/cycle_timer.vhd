@@ -19,6 +19,8 @@ architecture structural of cycle_timer is
   -- Component declarations
   --------------------------------------------------------------------
   component and2     port(input1,input2: in std_logic; output: out std_logic); end component;
+  component or2      port(input1,input2: in std_logic; output: out std_logic); end component;
+  component inverter port(input: in std_logic; output: out std_logic); end component;
   component dff_pos  port(clk,d,reset: in std_logic; q: out std_logic); end component;
   component dff_neg  port(clk,d,reset: in std_logic; q: out std_logic); end component;
   component eq6bit
@@ -31,10 +33,11 @@ architecture structural of cycle_timer is
   --------------------------------------------------------------------
   -- Internal signals
   --------------------------------------------------------------------
-  signal cnt       : std_logic_vector(5 downto 0);
-  signal busy_sync : std_logic;
+  signal cnt                 : std_logic_vector(5 downto 0);
+  signal busy_sync           : std_logic;
+  signal nbusy_sync, auto_rst: std_logic;
 
-  -- Equality comparisons (raw)
+  -- Equality comparisons
   signal eq0, eq1, eq8, eq9, eq11, eq13, eq15, eq16 : std_logic;
 
   -- NEG-edge registered flags
@@ -42,17 +45,23 @@ architecture structural of cycle_timer is
 
 begin
   --------------------------------------------------------------------
-  -- SYNCHRONIZE BUSY TO POSEDGE
+  -- Synchronize busy to posedge
   --------------------------------------------------------------------
   sync_busy : dff_pos port map(clk, busy, reset, busy_sync);
 
   --------------------------------------------------------------------
-  -- MAIN COUNTER
+  -- Generate auto-reset when busy is low
   --------------------------------------------------------------------
-  cnt_u : counter6 port map(clk => clk, reset => reset, en => busy_sync, q_out => cnt);
+  inv_busy : inverter port map(input => busy_sync, output => nbusy_sync);
+  or_reset : or2      port map(input1 => reset, input2 => nbusy_sync, output => auto_rst);
 
   --------------------------------------------------------------------
-  -- COMPARATORS 
+  -- Main counter (auto-reset clears it when busy=0)
+  --------------------------------------------------------------------
+  cnt_u : counter6 port map(clk => clk, reset => auto_rst, en => busy_sync, q_out => cnt);
+
+  --------------------------------------------------------------------
+  -- Equality comparators
   --------------------------------------------------------------------
   eq0_u  : eq6bit port map(cnt, std_logic_vector(to_unsigned(0,6)),  eq0);
   eq1_u  : eq6bit port map(cnt, std_logic_vector(to_unsigned(1,6)),  eq1);
@@ -64,7 +73,7 @@ begin
   eq16_u : eq6bit port map(cnt, std_logic_vector(to_unsigned(16,6)), eq16);
 
   --------------------------------------------------------------------
-  -- POS-EDGE FLAGS (direct)
+  -- POS-edge flags
   --------------------------------------------------------------------
   c0_pos  <= eq0;
   c1_pos  <= eq1;
@@ -74,22 +83,22 @@ begin
   c15_pos <= eq15;
 
   --------------------------------------------------------------------
-  -- NEG-EDGE FLAGS (half-cycle later)
+  -- NEG-edge flags (half-cycle later)
   --------------------------------------------------------------------
-  c0n_ff  : dff_neg port map(clk, eq0,  reset, c0n);
-  c8n_ff  : dff_neg port map(clk, eq8,  reset, c8n);
-  c9n_ff  : dff_neg port map(clk, eq9,  reset, c9n);
-  c11n_ff : dff_neg port map(clk, eq11, reset, c11n);
-  c13n_ff : dff_neg port map(clk, eq13, reset, c13n);
-  c15n_ff : dff_neg port map(clk, eq15, reset, c15n);
-  c16n_ff : dff_neg port map(clk, eq16, reset, c16n);
+  c0n_ff  : dff_neg port map(clk, eq0,  auto_rst, c0n);
+  c8n_ff  : dff_neg port map(clk, eq8,  auto_rst, c8n);
+  c9n_ff  : dff_neg port map(clk, eq9,  auto_rst, c9n);
+  c11n_ff : dff_neg port map(clk, eq11, auto_rst, c11n);
+  c13n_ff : dff_neg port map(clk, eq13, auto_rst, c13n);
+  c15n_ff : dff_neg port map(clk, eq15, auto_rst, c15n);
+  c16n_ff : dff_neg port map(clk, eq16, auto_rst, c16n);
 
   --------------------------------------------------------------------
-  -- OUTPUT ASSIGNMENTS
+  -- Output assignments
   --------------------------------------------------------------------
-  c0_neg <= c0n;
-  c8_neg <= c8n;
-  c9_neg <= c9n;
+  c0_neg  <= c0n;
+  c8_neg  <= c8n;
+  c9_neg  <= c9n;
   c11_neg <= c11n;
   c13_neg <= c13n;
   c15_neg <= c15n;

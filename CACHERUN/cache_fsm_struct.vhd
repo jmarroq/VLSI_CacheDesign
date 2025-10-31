@@ -176,7 +176,7 @@ begin
        
 
         -- Outputs
-        busy           => busy,
+        busy           => busy_internal,
         output_enable  => output_enable,
         rw_enable      => rw_enable,
         mux_sel        => mux_sel,

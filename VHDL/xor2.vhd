@@ -8,37 +8,37 @@ use IEEE.std_logic_1164.all;
 
 entity xor2 is
   port (
-    input1   : in  std_logic;
-    input2   : in  std_logic;
-    output   : out std_logic);
+	input1   : in  std_logic;
+	input2   : in  std_logic;
+	output   : out std_logic);
 end xor2;
 
 architecture structural of xor2 is
 
 component or2
-    port (
-      input1 : in  std_logic;
-      input2 : in  std_logic;
-      output : out std_logic
-    );
+	port (
+  	input1 : in  std_logic;
+  	input2 : in  std_logic;
+  	output : out std_logic
+	);
   end component;
 
   component inverter
-    port (
-      input : in  std_logic;
-      output: out std_logic
-    );
+	port (
+  	input : in  std_logic;
+  	output: out std_logic
+	);
   end component;
 
 component and2 is
   port (
-    input1   : in  std_logic;
-    input2   : in  std_logic;
-    output   : out std_logic
-    );
+	input1   : in  std_logic;
+	input2   : in  std_logic;
+	output   : out std_logic
+	);
 end component;
 
-signal A_not, B_not, AnotB, AnotB: std_logic;
+signal A_not, B_not, AnotB, ABnot: std_logic;
   for inverter_1: inverter use entity work.inverter(structural);
   for inverter_2: inverter use entity work.inverter(structural);
   for and2_ABnot: and2 use entity work.and2(structural);

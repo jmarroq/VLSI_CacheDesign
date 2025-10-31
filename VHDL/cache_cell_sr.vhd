@@ -81,11 +81,8 @@ begin
             set_latch <= '0';    -- Ensure set is not active during reset
         else
             reset_latch <= '0';  -- Deactivate reset
-            if RD_WR = '1' then
-                set_latch <= '1';  -- Set the latch if RD_WR is high (example condition)
-            else
-                set_latch <= '0';  -- Otherwise, do not set the latch
-            end if;
+            set_latch <= '1';  -- Set the latch if RD_WR is high (example condition)
+           
         end if;
     end process;
 

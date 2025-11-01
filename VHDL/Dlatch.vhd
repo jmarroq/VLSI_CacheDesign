@@ -1,3 +1,10 @@
+-- ==============================================================
+-- Entity: cache_cell
+-- Author: Juan Marroquin
+-- Description:
+-- Behavioral Positive level-sensitive D-Latch
+-- ==============================================================
+
 library IEEE;
 use IEEE.std_logic_1164.all;
 
@@ -12,13 +19,11 @@ end Dlatch;
 
 architecture behavioral of Dlatch is 
 begin
-  output: process (D, EN) -- Sensitivity list includes D and EN to infer a latch
+  output: process (D, EN) 
   begin
-    -- Positive level-sensitive D-Latch
     if EN = '1' then
       Q <= D;
       Q_n <= not D;
     end if; 
-   
   end process output;
 end behavioral;

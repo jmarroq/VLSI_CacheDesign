@@ -6,7 +6,6 @@
 --     - Data array (4 bytes = 1 line)
 --     - Tag block (2 bits)
 --     - Valid bit block (1 bit)
---   Includes asynchronous reset propagated to all submodules.
 --============================================================
 
 library IEEE;

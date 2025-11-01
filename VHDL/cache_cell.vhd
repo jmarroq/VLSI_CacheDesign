@@ -3,9 +3,6 @@
 -- Author: Juan Marroquin
 -- Description:
 -- Structural cache cell using cache_sel, Dlatch, tx, and and2.
--- - RD_WR = '1' → Read
--- - RD_WR = '0' → Write
--- - reset = '1' clears stored data and forces D_out = '0'
 -- ==============================================================
 
 library IEEE;
@@ -140,13 +137,8 @@ begin
         );
 
     ----------------------------------------------------------------
-    -- 5) Stable output logic:
-    --    - reset = '1' → D_out = '0'
-    --    - read  = '1' → D_out = Q_int
-    --    - otherwise → D_out = '0' (no Z or X in sim)
+    -- 5) Stable output logic
     ----------------------------------------------------------------
-    D_out <= '0' when reset = '1' else
-             Q_int when RE = '1' else
-             '0';
+    D_out <= '0' when reset = '1' else  Q_int when RE = '1' else '0';
 
 end structural;

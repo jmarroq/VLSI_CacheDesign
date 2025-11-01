@@ -1,77 +1,114 @@
+--============================================================
 -- Entity: full_cache_line
--- Architecture: structural
 -- Author: Juan Marroquin
---
+-- Description:
+--   Complete cache line containing:
+--     - Data array (4 bytes = 1 line)
+--     - Tag block (2 bits)
+--     - Valid bit block (1 bit)
+--   Includes asynchronous reset propagated to all submodules.
+--============================================================
 
 library IEEE;
 use IEEE.std_logic_1164.all;
 
 entity full_cache_line is 
-  port (
-        CE_index     : in std_logic;
-        CE_offset    : in std_logic_vector(3 downto 0);
-        RD_WR  : in std_logic;
-        Tag_in : in std_logic_vector(1 downto 0);
-        Tag_out: out std_logic_vector(1 downto 0);
-        V_in   : in std_logic;
-        V_out  : out std_logic;
-        D_in   : in std_logic_vector(7 downto 0);
-        D_out  : out std_logic_vector(7 downto 0));
+    port (
+        CE_index  : in  std_logic;                      
+        CE_offset : in  std_logic_vector(3 downto 0);   
+        RD_WR     : in  std_logic;                     
+        reset     : in  std_logic;                      
+        Tag_in    : in  std_logic_vector(1 downto 0);   
+        Tag_out   : out std_logic_vector(1 downto 0);   
+        V_in      : in  std_logic;                      
+        V_out     : out std_logic;                      
+        D_in      : in  std_logic_vector(7 downto 0);  
+        D_out     : out std_logic_vector(7 downto 0)    
+    );
 end full_cache_line;
 
 architecture structural of full_cache_line is
 
-  -- REQUIRED COMPONENTS
-component cache_line_data is 
-    port (
-        CE_index     : in std_logic;
-        CE_offset    : in std_logic_vector(3 downto 0);
-        RD_WR  : in std_logic;
-        D_in   : in std_logic_vector(7 downto 0);
-        D_out  : out std_logic_vector(7 downto 0));
-end component;
+    ----------------------------------------------------------------
+    -- Components
+    ----------------------------------------------------------------
+    component and2
+        port (
+            input1 : in  std_logic;
+            input2 : in  std_logic;
+            output : out std_logic
+        );
+    end component;
 
- component tag is 
-    port (
-        CE     : in std_logic;
-        RD_WR  : in std_logic;
-        Tag_in   : in std_logic_vector(1 downto 0);
-        Tag_out  : out std_logic_vector(1 downto 0));
-end component;
+    component inverter
+        port (
+            input  : in  std_logic;
+            output : out std_logic
+        );
+    end component;
 
-component valid_bit is 
-    port (
-        CE     : in std_logic;
-        RD_WR  : in std_logic;
-        V_in   : in std_logic;
-        V_out  : out std_logic);
-end component;
+    ----------------------------------------------------------------
+    -- Internal signals
+    ----------------------------------------------------------------
+    signal RD_WR_n       : std_logic;
+    signal CE_tag_valid  : std_logic;
+    signal CE_tag_base   : std_logic;
 
-component inverter
-  port (
-    input   : in std_logic;
-    output   : out std_logic);
-end component;
-
-for cache_line_data_inst: cache_line_data use entity work.cache_line_data.work(structural);
-for tag_inst: tag use entity work.tag.work(structural);
-for valid_bit_inst: valid_bit use entity work.valid_bit.work(structural);
-for inverter_inst: inverter use entity work.inverter.work(structural);
-
-  signal CE : std_logic;
-  signal CE_tag_valid : std_logic;
-  signal RD_WR_n : std_logic;
-  
-
-  
 begin
-  inverter_inst: inverter port map(RD_WR, RD_WR_n);
-  CE <= CE_index;
-  CE_tag_valid <= CE_index AND RD_WR_n AND CE_offset(0);
-  cache_line_data_inst: cache_line_data port map(CE_index, CE_offset, RD_WR, D_in, D_out);
-  tag_inst: tag port map( CE_tag_valid,RD_WR, Tag_in, Tag_out);
-  valid_bit_inst: valid_bit port map( CE_tag_valid, RD_WR, V_in, V_out);
+    ----------------------------------------------------------------
+    -- Invert RD_WR
+    ----------------------------------------------------------------
+    inv_rdwr: inverter port map (
+        input  => RD_WR,
+        output => RD_WR_n
+    );
+
+    ----------------------------------------------------------------
+    -- Generate combined enable for tag/valid section
+    ----------------------------------------------------------------
+    and2_base: and2 port map (
+        input1 => CE_index,
+        input2 => CE_offset(0),
+        output => CE_tag_base
+    );
+
+    CE_tag_valid <= CE_tag_base;
+
+    ----------------------------------------------------------------
+    -- Data array (4-byte line)
+    ----------------------------------------------------------------
+    cache_line_data_inst: entity work.cache_line_data(structural)
+        port map (
+            CE_index  => CE_index,
+            CE_offset => CE_offset,
+            RD_WR     => RD_WR,
+            reset     => reset,
+            D_in      => D_in,
+            D_out     => D_out
+        );
+
+    ----------------------------------------------------------------
+    -- Tag storage (2-bit, with reset)
+    ----------------------------------------------------------------
+    tag_inst: entity work.tag(structural)
+        port map (
+            CE      => CE_tag_valid,
+            RD_WR   => RD_WR,
+            reset   => reset,
+            Tag_in  => Tag_in,
+            Tag_out => Tag_out
+        );
+
+    ----------------------------------------------------------------
+    -- Valid-bit storage (1-bit, with reset)
+    ----------------------------------------------------------------
+    valid_bit_inst: entity work.valid_bit(structural)
+        port map (
+            CE     => CE_tag_valid,
+            RD_WR  => RD_WR,
+            reset  => reset,
+            V_in   => V_in,
+            V_out  => V_out
+        );
 
 end structural;
-
-  

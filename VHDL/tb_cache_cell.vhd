@@ -11,7 +11,7 @@ entity tb_cache_cell is
 end tb_cache_cell;
 
 architecture tb of tb_cache_cell is
-	component cache_cell_sr
+	component cache_cell
     	port (
         	CE 	: in std_logic;
         	RD_WR  : in std_logic;
@@ -24,7 +24,7 @@ architecture tb of tb_cache_cell is
 	-- DUT signals
 	signal CE_tb, RD_WR_tb, reset_tb, D_in_tb, D_out_tb : std_logic;
 begin
-	UUT: cache_cell_sr
+	UUT: cache_cell
     	port map(
         	CE  	=> CE_tb,
         	RD_WR   => RD_WR_tb,

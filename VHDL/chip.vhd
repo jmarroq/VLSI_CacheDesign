@@ -149,7 +149,7 @@ begin
         );
 
     Offset_Dec_Inst : entity work.decoder2to4
-        port map (Chip Enable
+        port map (
             EN => FSM_Decoder_Enable,
             A  => Mux_2bit_Out,
             Y  => Byte_Dec_Y

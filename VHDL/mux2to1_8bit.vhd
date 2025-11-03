@@ -22,7 +22,7 @@ architecture structural of mux2to1_8bit is
   end component;
 
   -- Architecture binding for all generated instances
-  for bitmux: mux2to1 use entity work.mux2to1(structural);
+ -- for bitmux: mux2to1 use entity work.mux2to1(structural);
 
 begin
 

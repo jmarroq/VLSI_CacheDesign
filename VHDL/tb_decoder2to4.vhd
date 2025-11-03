@@ -18,12 +18,13 @@ architecture behavior of tb_decoder2to4 is
 
     -- Signal Declarations for connecting to the UUT ports
     -- Input signals (Initialize to '0')
-    signal tb_EN  : std_logic := '0';
-    signal tb_A : std_logic := '00';
+    signal tb_EN: std_logic := '0';
+    signal tb_A : std_logic_vector(1 downto 0) := "00";
+    
+
 
     -- Output signals
-    signal tb_Y : std_logic := '0000';
-
+   signal tb_Y : std_logic_vector(3 downto 0) := "0000";
 
 
 begin
@@ -32,7 +33,7 @@ begin
     uut: decoder2to4
     port map ( EN  => tb_EN,
                A => tb_A,
-               Y => tb_Y,
+               Y => tb_Y
                );
 
     -- Stimulus process: Generates all input combinations
@@ -45,19 +46,19 @@ begin
         tb_EN <= '0';
         
         -- E='0', A1A0="00". Expected Y="0000"
-        tb_A <= '00';
+        tb_A <= "00";
         wait for 20 ns;
 
         -- E='0', A1A0="01". Expected Y="0000"
-        tb_A <= '01';
+        tb_A <= "01";
         wait for 20 ns;
 
         -- E='0', A1A0="10". Expected Y="0000"
-        tb_A <= '10';
+        tb_A <= "10";
         wait for 20 ns;
         
         -- E='0', A1A0="11". Expected Y="0000"
-        tb_A <= '11';
+        tb_A <= "11";
         wait for 20 ns;
         
         -- --------------------------------------------------------
@@ -66,19 +67,19 @@ begin
        tb_EN <= '1';
         
         -- E='1', A1A0="00". Expected Y="1000"
-        tb_A <= '00';
+        tb_A <= "00";
         wait for 20 ns;
 
         -- E='1', A1A0="01". Expected Y="0100"
-        tb_A <= '01';
+        tb_A <= "01";
         wait for 20 ns;
 
         -- E='1', A1A0="10". Expected Y="0010"
-        tb_A <= '10';
+        tb_A <= "10";
         wait for 20 ns;
         
         -- E='1', A1A0="11". Expected Y="0001"
-        tb_A <= '11';
+        tb_A <= "11";
         wait for 20 ns;
         wait;
     end process;

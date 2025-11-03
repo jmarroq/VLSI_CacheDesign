@@ -98,6 +98,8 @@ architecture structural of cache_fsm_struct is
     signal byte_enable : std_logic;
     signal latch_en, nS2, nS1, latch_tmp : std_logic;
 
+    signal busy_internal : std_logic;
+
 begin
     --------------------------------------------------------------------
     -- STATE REGISTER (3 Negedge FFs with active-high reset)
@@ -119,6 +121,7 @@ begin
     -- INPUT REGISTER (captures {start, rw, cvt} during S_LATCH)
     --------------------------------------------------------------------
     cpu_in <= start & read_write & cvt;
+    busy     <= busy_internal;
 
     InputRegister: input_reg
       port map(
@@ -173,7 +176,7 @@ begin
        
 
         -- Outputs
-        busy           => busy,
+        busy           => busy_internal,
         output_enable  => output_enable,
         rw_enable      => rw_enable,
         mux_sel        => mux_sel,
@@ -190,7 +193,7 @@ begin
       port map(
         clk      => clk,
         reset    => reset,
-        busy     => busy,
+        busy     => busy_internal,
 
         -- POS flags
         c0_pos   => c0_pos,

@@ -104,9 +104,9 @@ begin
 --     --------------------------------------------------------------------
 --     -- STATE REGISTER (3 Negedge FFs with active-high reset)
 --     --------------------------------------------------------------------
---     dff0: dff_neg port map(clk => clk, d => next_state(0), reset => reset, q => state(0));
---     dff1: dff_neg port map(clk => clk, d => next_state(1), reset => reset, q => state(1));
---     dff2: dff_neg port map(clk => clk, d => next_state(2), reset => reset, q => state(2));
+    dff0: dff_neg port map(clk => clk, d => next_state(0), reset => reset, q => state(0));
+    dff1: dff_neg port map(clk => clk, d => next_state(1), reset => reset, q => state(1));
+    dff2: dff_neg port map(clk => clk, d => next_state(2), reset => reset, q => state(2));
 
 --     --------------------------------------------------------------------
 --     -- DECODE latch_en WHEN state = 001 (S_LATCH)

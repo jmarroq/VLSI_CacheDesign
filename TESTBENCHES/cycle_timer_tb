@@ -1,0 +1,104 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity cycle_timer_tb is
+end cycle_timer_tb;
+
+architecture behavioral of cycle_timer_tb is
+
+  component cycle_timer
+    port (
+      clk, reset, busy : in std_logic;
+      -- POS-edge flags
+      c0_pos, c1_pos, c9_pos, c11_pos, c13_pos, c15_pos : out std_logic;
+      -- NEG-edge flags
+      c0_neg, c8_neg, c9_neg, c11_neg, c13_neg, c15_neg, c16_neg : out std_logic
+    );
+  end component;
+
+  signal clk_s, reset_s, busy_s : std_logic := '0';
+  signal c0p_s, c1p_s, c9p_s, c11p_s, c13p_s, c15p_s : std_logic;
+  signal c0n_s, c8n_s, c9n_s, c11n_s, c13n_s, c15n_s, c16n_s : std_logic;
+
+  constant CLK_PERIOD : time := 10 ns;
+
+begin
+  uut: cycle_timer
+    port map(
+      clk       => clk_s,
+      reset     => reset_s,
+      busy      => busy_s,
+      c0_pos    => c0p_s,
+      c1_pos    => c1p_s,
+      c9_pos    => c9p_s,
+      c11_pos   => c11p_s,
+      c13_pos   => c13p_s,
+      c15_pos   => c15p_s,
+      c0_neg    => c0n_s,
+      c8_neg    => c8n_s,
+      c9_neg    => c9n_s,
+      c11_neg   => c11n_s,
+      c13_neg   => c13n_s,
+      c15_neg   => c15n_s,
+      c16_neg   => c16n_s
+    );
+
+  --------------------------------------------------------------------
+  -- Clock generation (10 ns period)
+  --------------------------------------------------------------------
+  clk_process: process
+  begin
+    loop
+      clk_s <= '0';
+      wait for CLK_PERIOD / 2;
+      clk_s <= '1';
+      wait for CLK_PERIOD / 2;
+    end loop;
+  end process;
+
+  --------------------------------------------------------------------
+  -- Stimulus
+  --------------------------------------------------------------------
+  stim_process: process
+    procedure wait_cycles(N : in integer) is
+    begin
+      for i in 1 to N loop
+        wait until rising_edge(clk_s);
+      end loop;
+    end procedure;
+  begin
+    ----------------------------------------------------------------
+    -- RESET phase
+    ----------------------------------------------------------------
+    report "=== RESETTING TIMER ===" severity note;
+    reset_s <= '1';
+    busy_s  <= '0';
+    wait_cycles(3);
+
+    reset_s <= '0';
+    report "=== RELEASED RESET ===" severity note;
+    wait_cycles(2);
+
+    ----------------------------------------------------------------
+    -- ASSERT BUSY
+    ----------------------------------------------------------------
+    wait until falling_edge(clk_s);
+    busy_s <= '1';
+    report "=== BUSY ASSERTED (START COUNT) ===" severity note;
+
+    wait_cycles(20);
+
+    ----------------------------------------------------------------
+    -- DEASSERT BUSY
+    ----------------------------------------------------------------
+    wait until falling_edge(clk_s);
+    busy_s <= '0';
+    report "=== BUSY DEASSERTED ===" severity note;
+
+    wait_cycles(5);
+    report "=== TEST COMPLETE ===" severity note;
+    assert false severity failure;
+  end process;
+
+end behavioral;

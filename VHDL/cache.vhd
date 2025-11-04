@@ -6,20 +6,6 @@
 --              data path, and memory interface.
 -- ============================================================
 
--- ISSUES THAT MIGHT NEED TO BE ADDRESSED,
--- busy needs the internal signal
--- on "Address field extraction
---    Hardcoded last memory bytes need to be put in a module 
-    --Mem_Addr_Line <= "1100" & CPU_Address(3 downto 0);
---    Need to use structural "inverter" for signals:
-        --FSM_CPU_Out_En_NOT     <= not FSM_CPU_Out_En;
-        --FSM_MemAddr_Out_En_NOT <= not FSM_MemAddr_Out_En;
-
-                    ^^
-                    ||
-                    ||
---(IT WORKS without those changes, you can comment out if you want to test)
-
 library IEEE;
 use IEEE.std_logic_1164.all;
 
@@ -186,8 +172,8 @@ begin
     ----------------------------------------------------------------
         Cache_Block_Inst : entity work.cache_data_block
         port map (
-            CE_index  => Byte_Dec_Y,
-            CE_offset => Index_Dec_Y,
+        	CE_index  => Index_Dec_Y,
+            CE_offset => Byte_Dec_Y,
             RD_WR     => FSM_RW_Enable,
             reset     => reset,          
             Tag_in    => Tag_Bits,
@@ -211,7 +197,7 @@ begin
     ----------------------------------------------------------------
     -- Tri-state Outputs
     ----------------------------------------------------------------
-    -- CPU Data Bus
+    -- (1) CPU Data Bus
     Tx_CPU_Data : entity work.tx_8bit
         port map (
             sel    => FSM_CPU_Out_En,
@@ -220,7 +206,7 @@ begin
             output => CPU_Data
         );
 
-    --  Memory Address Bus
+    -- (2) Memory Address Bus
     Tx_Mem_Addr : entity work.tx_8bit
         port map (
             sel    => FSM_MemAddr_Out_En,

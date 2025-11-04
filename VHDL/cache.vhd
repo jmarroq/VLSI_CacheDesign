@@ -4,7 +4,7 @@
 -- Author: Juan Marroquin
 -- Description: Top-level structural cache integrating FSM,
 --              data path, and memory interface.
--- ============================================================
+-- =============================================================
 
 library IEEE;
 use IEEE.std_logic_1164.all;

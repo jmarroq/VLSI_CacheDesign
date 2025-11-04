@@ -139,6 +139,6 @@ begin
     ----------------------------------------------------------------
     -- 5) Stable output logic
     ----------------------------------------------------------------
-    D_out <= '0' when reset = '1' else  Q_int when RE = '1' else '0';
+    D_out <= '0' when reset = '1' else  Q_int when RE = '1' else 'Z';
 
 end structural;

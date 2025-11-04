@@ -6,6 +6,7 @@
 --     - Data array (4 bytes = 1 line)
 --     - Tag block (2 bits)
 --     - Valid bit block (1 bit)
+--   Includes asynchronous reset propagated to all submodules.
 --============================================================
 
 library IEEE;
@@ -13,16 +14,16 @@ use IEEE.std_logic_1164.all;
 
 entity full_cache_line is 
     port (
-        CE_index  : in  std_logic;                      
-        CE_offset : in  std_logic_vector(3 downto 0);   
-        RD_WR     : in  std_logic;                     
-        reset     : in  std_logic;                      
-        Tag_in    : in  std_logic_vector(1 downto 0);   
-        Tag_out   : out std_logic_vector(1 downto 0);   
-        V_in      : in  std_logic;                      
-        V_out     : out std_logic;                      
-        D_in      : in  std_logic_vector(7 downto 0);  
-        D_out     : out std_logic_vector(7 downto 0)    
+        CE_index  : in  std_logic;                      -- Line select (from index decoder)
+        CE_offset : in  std_logic_vector(3 downto 0);   -- Byte select lines within the line
+        RD_WR     : in  std_logic;                      -- 1 = READ, 0 = WRITE
+        reset     : in  std_logic;                      -- Asynchronous reset
+        Tag_in    : in  std_logic_vector(1 downto 0);   -- Tag input
+        Tag_out   : out std_logic_vector(1 downto 0);   -- Tag output
+        V_in      : in  std_logic;                      -- Valid bit input
+        V_out     : out std_logic;                      -- Valid bit output
+        D_in      : in  std_logic_vector(7 downto 0);   -- Data input (1 byte)
+        D_out     : out std_logic_vector(7 downto 0)    -- Data output (1 byte)
     );
 end full_cache_line;
 
@@ -64,10 +65,11 @@ begin
 
     ----------------------------------------------------------------
     -- Generate combined enable for tag/valid section
+    -- (for example, use offset(0) as the base byte trigger)
     ----------------------------------------------------------------
     and2_base: and2 port map (
         input1 => CE_index,
-        input2 => CE_offset(0),
+        input2 => CE_offset(3),
         output => CE_tag_base
     );
 
@@ -91,7 +93,7 @@ begin
     ----------------------------------------------------------------
     tag_inst: entity work.tag(structural)
         port map (
-            CE      => CE_tag_valid,
+           CE      => CE_index,--CE      => CE_tag_valid
             RD_WR   => RD_WR,
             reset   => reset,
             Tag_in  => Tag_in,
@@ -103,7 +105,7 @@ begin
     ----------------------------------------------------------------
     valid_bit_inst: entity work.valid_bit(structural)
         port map (
-            CE     => CE_tag_valid,
+            CE      => CE_index, --CE      => CE_tag_valid
             RD_WR  => RD_WR,
             reset  => reset,
             V_in   => V_in,

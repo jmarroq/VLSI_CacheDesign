@@ -2,10 +2,10 @@
 -- Entity: chip
 -- Architecture: structural
 -- Author: Juan Marroquin
--- Description:
---   Top-level structural cache integrating FSM, data path,
---   and memory interface. Matches the provided chip interface.
+-- Description: Top-level structural cache integrating FSM,
+--              data path, and memory interface.
 -- ============================================================
+
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -37,17 +37,21 @@ architecture structural of chip is
     ----------------------------------------------------------------
     -- Internal Signals
     ----------------------------------------------------------------
+    -- Registered data/address
     signal Reg_Data_Q       : std_logic_vector(7 downto 0);
     signal Reg_Addr_Q       : std_logic_vector(5 downto 0);
 
+    -- Mux outputs
     signal Mux_8bit_Out     : std_logic_vector(7 downto 0);
     signal Cache_Data_Out   : std_logic_vector(7 downto 0);
     signal Mux_2bit_Out     : std_logic_vector(1 downto 0);
 
+    -- Address fields
     signal Tag_Bits         : std_logic_vector(1 downto 0);
     signal Index_Bits       : std_logic_vector(1 downto 0);
     signal Byte_Offset_Bits : std_logic_vector(1 downto 0);
 
+    -- FSM control lines
     signal FSM_Cvt_In           : std_logic;
     signal FSM_CPU_Out_En       : std_logic;
     signal FSM_MemAddr_Out_En   : std_logic;
@@ -58,14 +62,21 @@ architecture structural of chip is
     signal FSM_Valid_Bit        : std_logic;
     signal FSM_Byte_Counter     : std_logic_vector(1 downto 0);
 
+    -- Decoder enables
     signal Index_Dec_Y          : std_logic_vector(3 downto 0);
     signal Byte_Dec_Y           : std_logic_vector(3 downto 0);
 
+    -- Cache status
     signal Cache_Tag_Out        : std_logic_vector(1 downto 0);
     signal Cache_Valid_Out      : std_logic;
 
+    -- Tri-state inverted enables
     signal FSM_CPU_Out_En_NOT      : std_logic;
     signal FSM_MemAddr_Out_En_NOT  : std_logic;
+
+    -- Data to CPU / Mem
+    signal CPU_Data_Int    : std_logic_vector(7 downto 0);
+    signal Mem_Addr_Line   : std_logic_vector(5 downto 0);
 
 begin
     ----------------------------------------------------------------

@@ -76,7 +76,7 @@ begin
   and_W  : and3 port map(nS2,  S1,  S0, W);     -- 011
   and_RM : and3 port map( S2, nS1, nS0, RM);    -- 100
   and_RF : and3 port map( S2, nS1,  S0, RF);    -- 101
-  and_RD : and3 port map( S2,  S1, nS0, RD);    -- 110
+  and_RD : and3 port map( S2,  S1, nS0, RD);    -- 110 
 
   --------------------------------------------------------------------
   -- Hit/Miss decode
@@ -87,7 +87,7 @@ begin
   and_read_hit  : and2 port map(rw_lat, cvt_lat, read_hit);
   and_write_hit : and2 port map(nRW,    cvt_lat, write_hit);
   and_read_miss : and2 port map(rw_lat, nCVT,    read_miss);
-  and_write_miss: and2 port map(nRW, 	nCVT, write_miss);
+  and_write_miss: and2 port map(nRW, 	nCVT, write_miss); --
 
   --------------------------------------------------------------------
   -- busy = L + (D & (read_miss + write_hit)) + RM + RF
@@ -122,12 +122,14 @@ begin
 
   or_rw     : or2  port map(rf_and_pos, d_and_c0n, rw_or);
   inv_rwE   : inverter port map(rw_or, rw_enable);
+ 
 
   --------------------------------------------------------------------
   -- valid_bit = RF & (c8_neg + c9_neg)
   --------------------------------------------------------------------
-  or_val0 : or2  port map(c8_neg, c9_neg, or_val_early);
-  and_val : and2 port map(RF, or_val_early, valid_bit);
+--   or_val0 : or2  port map(c8_neg, c9_neg, or_val_early);
+--   and_val : and2 port map(RF, or_val_early, valid_bit);
+  valid_bit <= '1';
 
   --------------------------------------------------------------------
   -- BYTE_ENABLE = RF & (c9_neg | c11_neg | c13_neg | c15_neg)
@@ -148,11 +150,11 @@ begin
   or_muxp : or2  port map(c0_pos, c1_pos, or_mux_pos);
 
   -- (D & write_hit & (c0_pos + c1_pos))
-  and_d_wh  : and2 port map(D, write_hit, d_and_wh);
-  and_mux0  : and2 port map(d_and_wh, or_mux_pos, d_wh_mux);
+  --and_d_wh  : and2 port map(D, write_hit, d_and_wh);
+  and_mux0  : and2 port map(write_hit, or_mux_pos, d_wh_mux);
 
   -- Final OR with RD
   or_mux0   : or2  port map(d_wh_mux, RD, mux_sel);
-
+  
 
 end architecture structural;

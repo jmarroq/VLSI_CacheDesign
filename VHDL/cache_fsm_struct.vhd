@@ -11,7 +11,7 @@ entity cache_fsm_struct is
         busy            : out std_logic;
         output_enable   : out std_logic;
         rw_enable       : out std_logic;
-        mux_sel         : out std_logic;struc
+        mux_sel         : out std_logic;
         decoder_enable  : out std_logic;
         mem_enable      : out std_logic;
         valid_bit       : out std_logic;
@@ -101,21 +101,28 @@ architecture structural of cache_fsm_struct is
     signal busy_internal : std_logic;
 
 begin
-    --------------------------------------------------------------------
-    -- STATE REGISTER (3 Negedge FFs with active-high reset)
-    --------------------------------------------------------------------
+--     --------------------------------------------------------------------
+--     -- STATE REGISTER (3 Negedge FFs with active-high reset)
+--     --------------------------------------------------------------------
     dff0: dff_neg port map(clk => clk, d => next_state(0), reset => reset, q => state(0));
     dff1: dff_neg port map(clk => clk, d => next_state(1), reset => reset, q => state(1));
     dff2: dff_neg port map(clk => clk, d => next_state(2), reset => reset, q => state(2));
 
-    --------------------------------------------------------------------
-    -- DECODE latch_en WHEN state = 001 (S_LATCH)
-    --------------------------------------------------------------------
-    invS2: inverter port map(next_state(2), nS2);
-    invS1: inverter port map(next_state(1), nS1);
+--     --------------------------------------------------------------------
+--     -- DECODE latch_en WHEN state = 001 (S_LATCH)
+--     --------------------------------------------------------------------
+--     invS2: inverter port map(next_state(2), nS2);
+--     invS1: inverter port map(next_state(1), nS1);
 
-    and_l0: and2 port map(nS2, nS1, latch_tmp);
-    and_l1: and2 port map(latch_tmp, next_state(0), latch_en);
+--     and_l0: and2 port map(nS2, nS1, latch_tmp);
+--     and_l1: and2 port map(latch_tmp, next_state(0), latch_en);
+
+	invS2: inverter port map(state(2), nS2);
+	invS1: inverter port map(state(1), nS1);
+	and_latch: and2 port map(nS2, nS1, latch_en);
+
+    
+    
 
     --------------------------------------------------------------------
     -- INPUT REGISTER (captures {start, rw, cvt} during S_LATCH)
@@ -156,7 +163,7 @@ begin
       port map(
         state_in       => state, 
         rw_lat         => rw_lat, 
-        cvt_lat        => cvt_lat, 
+        cvt_lat        => cvt_lat, --
 
         -- POS flags
         c0_pos         => c0_pos,

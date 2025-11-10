@@ -15,7 +15,8 @@ entity cache_fsm_struct is
         decoder_enable  : out std_logic;
         mem_enable      : out std_logic;
         valid_bit       : out std_logic;
-        byte_cnt_out    : out std_logic_vector(1 downto 0)
+        byte_cnt_out    : out std_logic_vector(1 downto 0);
+        latch_en	: out std_logic
     );
 end entity;
 
@@ -34,6 +35,8 @@ architecture structural of cache_fsm_struct is
     end component;
 
     component and2 port ( input1, input2 : in std_logic; output : out std_logic ); end component;
+    component or2 port ( input1, input2 : in std_logic; output : out std_logic ); end component;
+    component and3 port ( input1, input2, input3 : in std_logic; output : out std_logic ); end component;
     component inverter port ( input : in std_logic; output : out std_logic ); end component;
     
     component next_state_logic
@@ -96,7 +99,9 @@ architecture structural of cache_fsm_struct is
 
     -- Internal enables
     signal byte_enable : std_logic;
-    signal latch_en, nS2, nS1, latch_tmp : std_logic;
+    signal latch_en_internal, nS2, nS1, nS0, latch_tmp : std_logic;
+    signal cvt_latch_en : std_logic;
+    signal enable_test	: std_logic;
 
     signal busy_internal : std_logic;
 
@@ -111,19 +116,24 @@ begin
 --     --------------------------------------------------------------------
 --     -- DECODE latch_en WHEN state = 001 (S_LATCH)
 --     --------------------------------------------------------------------
---     invS2: inverter port map(next_state(2), nS2);
---     invS1: inverter port map(next_state(1), nS1);
+     invS2: inverter port map(next_state(2), nS2);
+     invS1: inverter port map(next_state(1), nS1);
 
---     and_l0: and2 port map(nS2, nS1, latch_tmp);
---     and_l1: and2 port map(latch_tmp, next_state(0), latch_en);
-
-	invS2: inverter port map(state(2), nS2);
-	invS1: inverter port map(state(1), nS1);
-	and_latch: and2 port map(nS2, nS1, latch_en);
-
+	and_l0: and2 port map(nS2, nS1, latch_tmp);
+	and_l1: and2 port map(latch_tmp, next_state(0), latch_en_internal);
+	
     
-    
+	latch_en <= latch_en_internal;
 
+--     --------------------------------------------------------------------
+--     -- DECODE cvt_latch_en WHEN state = 010 (S_DECIDE)
+--     --------------------------------------------------------------------
+	invS0: inverter port map(next_state(0), nS0);
+	and_cvt0: and3 port map(nS2, next_state(1), nS0,  cvt_latch_en);
+	
+	--and_yes: or2 port map(latch_en_internal, cvt_latch_en, enable_test);
+    
+  
     --------------------------------------------------------------------
     -- INPUT REGISTER (captures {start, rw, cvt} during S_LATCH)
     --------------------------------------------------------------------
@@ -135,9 +145,11 @@ begin
         d_in   => cpu_in,
         clk    => clk,
         reset  => reset,
-        enable => latch_en,
+        enable => latch_en_internal, --
         q_out  => cpu_lat
       );
+      
+      
 
     start_l <= cpu_lat(2);
     rw_lat  <= cpu_lat(1);

@@ -61,6 +61,7 @@ architecture structural of chip is
     signal FSM_Mem_Enable       : std_logic;
     signal FSM_Valid_Bit        : std_logic;
     signal FSM_Byte_Counter     : std_logic_vector(1 downto 0);
+    signal FSM_Latch_En		: std_logic;
 
     -- Decoder enables
     signal Index_Dec_Y          : std_logic_vector(3 downto 0);
@@ -106,7 +107,8 @@ begin
             decoder_enable  => FSM_Decoder_Enable,
             mem_enable      => FSM_Mem_Enable,
             valid_bit       => FSM_Valid_Bit,
-            byte_cnt_out    => FSM_Byte_Counter
+            byte_cnt_out    => FSM_Byte_Counter,
+            latch_en	    => FSM_Latch_En
         );
 
     ----------------------------------------------------------------
@@ -117,7 +119,7 @@ begin
             D      => cpu_data,
             CLK    => clk,
             RESET  => reset,
-            ENABLE => '1',
+            ENABLE => FSM_Latch_En,
             Q      => Reg_Data_Q
         );
 
@@ -126,7 +128,7 @@ begin
             D      => cpu_add,
             CLK    => clk,
             RESET  => reset,
-            ENABLE => '1',
+            ENABLE => FSM_Latch_En,
             Q      => Reg_Addr_Q
         );
 

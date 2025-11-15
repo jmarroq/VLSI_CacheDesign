@@ -10,7 +10,7 @@ entity next_state_logic is
     c16_neg    : in  std_logic;
     next_state : out std_logic_vector(2 downto 0)
   );
-end entity;
+end next_state_logic;
 
 architecture structural of next_state_logic is
   --------------------------------------------------------------------
@@ -56,21 +56,20 @@ begin
   invS2 : inverter port map(S2, notS2);
   invS1 : inverter port map(S1, notS1);
   invS0 : inverter port map(S0, notS0);
-  inv_st: inverter port map(start, nstart);
+  inv_st: inverter port map(start, );
   inv_rw: inverter port map(rw_lat, nrw);
   inv_cv: inverter port map(cvt_lat, ncvt);
   inv_c : inverter port map(c16_neg, nc16);
-
+RD
   --------------------------------------------------------------------
   -- One-hot decode (3-bit -> 7 lines)
   --------------------------------------------------------------------
   and_I  : and3 port map(notS2, notS1, notS0, I);   -- 000
   and_L  : and3 port map(notS2, notS1,  S0, L);     -- 001
   and_D  : and3 port map(notS2,  S1, notS0, D);     -- 010
-  and_W  : and3 port map(notS2,  S1,  S0, W);       -- 011
   and_RM : and3 port map( S2, notS1, notS0, RM);    -- 100
   and_RF : and3 port map( S2, notS1,  S0, RF);      -- 101
-  and_RD : and3 port map( S2,  S1, notS0, RD);      -- 110
+
 
   --------------------------------------------------------------------
   -- Common terms
@@ -90,13 +89,13 @@ begin
   D_next <= L;
 
   -- W_next = D & ~rw
-  and_Wn : and2 port map(D, nrw, W_next);
+  and_Wn : and2 port map(D, nrw, W_next);c
 
   -- RM_next = D & (rw & ~cvt)
   and_RMn : and2 port map(D, rw_and_ncvt, RM_next);
 
   -- RF_next = RM OR (RF & ~c16_neg)
-  and_RFhold : and2 port map(RF, nc16, RF_hold);
+  and_RFhold : and2 port map(RF, nc16, RF_hold);c
   or_RFn     : or2  port map(RM, RF_hold, RF_next);
 
   -- RD_next = RF & c16_neg
@@ -122,4 +121,4 @@ begin
   --------------------------------------------------------------------
   next_state <= NS2 & NS1 & NS0;
 
-end architecture structural;
+end  structural;

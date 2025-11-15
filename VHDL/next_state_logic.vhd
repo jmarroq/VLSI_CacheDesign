@@ -32,12 +32,11 @@ architecture structural of next_state_logic is
   signal I, L, D, W, RM, RF, RD : std_logic;
 
   -- Derived terms
-  signal rw_and_cvt, rw_and_ncvt : std_logic;
-  signal I_hold, I_hit, v1, v2 : std_logic;
+  signal rw_and_ncvt : std_logic;
   signal RF_hold : std_logic;
 
   -- Next-state one-hots
-  signal I_next, L_next, D_next, W_next, RM_next, RF_next, RD_next : std_logic;
+  signal L_next, D_next, W_next, RM_next, RF_next, RD_next : std_logic;
 
   -- Encoded bits
   signal ns0_a, ns1_a, ns2_a : std_logic;
@@ -63,7 +62,7 @@ begin
   inv_c : inverter port map(c16_neg, nc16);
 
   --------------------------------------------------------------------
-  -- One-hot decode (3-bit - 7 lines)
+  -- One-hot decode (3-bit -> 7 lines)
   --------------------------------------------------------------------
   and_I  : and3 port map(notS2, notS1, notS0, I);   -- 000
   and_L  : and3 port map(notS2, notS1,  S0, L);     -- 001
@@ -76,19 +75,14 @@ begin
   --------------------------------------------------------------------
   -- Common terms
   --------------------------------------------------------------------
-  and_cvt : and2 port map(rw_lat, cvt_lat, rw_and_cvt);   -- rw & cvt
-  and_ncv : and2 port map(rw_lat, ncvt, rw_and_ncvt);     -- rw & ~cvt
+  -- rw & ~cvt
+  and_ncv : and2 port map(rw_lat, ncvt, rw_and_ncvt);
 
   --------------------------------------------------------------------
   -- Next-state generation
   --------------------------------------------------------------------
-  -- I_next = (I & ~start) OR (D & (rw & cvt)) OR W OR RD
-  and_Ihold : and2 port map(I, nstart, I_hold);
-  and_Ihit  : and2 port map(D, rw_and_cvt, I_hit);
-  or_I0     : or2  port map(I_hold, I_hit, v1);
-  or_I1     : or2  port map(W, RD, v2);
-  or_I2     : or2  port map(v1, v2, I_next);
-
+  -- Idle is implicit: when none of L_next/D_next/W_next/RM_next/RF_next/RD_next assert,
+  
   -- L_next = I & start
   and_Ln : and2 port map(I, start, L_next);
 
@@ -101,11 +95,11 @@ begin
   -- RM_next = D & (rw & ~cvt)
   and_RMn : and2 port map(D, rw_and_ncvt, RM_next);
 
-  -- RF_next = RM OR (RF & ~c17_neg)
+  -- RF_next = RM OR (RF & ~c16_neg)
   and_RFhold : and2 port map(RF, nc16, RF_hold);
   or_RFn     : or2  port map(RM, RF_hold, RF_next);
 
-  -- RD_next = RF & c17_neg
+  -- RD_next = RF & c16_neg
   and_RDn : and2 port map(RF, c16_neg, RD_next);
 
   --------------------------------------------------------------------

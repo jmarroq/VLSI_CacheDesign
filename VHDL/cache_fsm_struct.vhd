@@ -78,20 +78,29 @@ architecture structural of cache_fsm_struct is
 
     component input_reg
       port (
-        d_in   : in  std_logic_vector(2 downto 0);  -- {start, rw, cvt}
+        d_in   : in  std_logic;
         clk    : in  std_logic;
         reset  : in  std_logic;
         enable : in  std_logic;
-        q_out  : out std_logic_vector(2 downto 0)  
+        q_out  : out std_logic  
       );
     end component;
+    component input_reg2
+      port (
+        d_in   : in  std_logic;
+        clk    : in  std_logic;
+        reset  : in  std_logic;
+        enable : in  std_logic;
+        q_out  : out std_logic  
+      );
+    end component;
+
 
     --------------------------------------------------------------------
     -- Internal signals
     --------------------------------------------------------------------
     signal state, next_state : std_logic_vector(2 downto 0);
-    signal cpu_in, cpu_lat   : std_logic_vector(2 downto 0);
-    signal start_l, rw_lat, cvt_lat : std_logic;
+    signal rw_lat, cvt_lat : std_logic;
 
     -- Cycle timer flags
     signal c0_pos, c1_pos, c9_pos, c11_pos, c13_pos, c15_pos : std_logic;
@@ -100,10 +109,11 @@ architecture structural of cache_fsm_struct is
     -- Internal enables
     signal byte_enable : std_logic;
     signal latch_en_internal, nS2, nS1, nS0, latch_tmp : std_logic;
-    signal cvt_latch_en : std_logic;
-    signal enable_test	: std_logic;
-
+ 
     signal busy_internal : std_logic;
+    
+    signal notS1, notS2 : std_logic;
+    signal latch_en_internal2, latch_tmp2, latch_en2  : std_logic;
 
 begin
 --     --------------------------------------------------------------------
@@ -119,41 +129,44 @@ begin
      invS2: inverter port map(next_state(2), nS2);
      invS1: inverter port map(next_state(1), nS1);
 
-	and_l0: and2 port map(nS2, nS1, latch_tmp);
-	and_l1: and2 port map(latch_tmp, next_state(0), latch_en_internal);
-	
-    
-	latch_en <= latch_en_internal;
+     and_l0: and2 port map(nS2, nS1, latch_tmp);
+     and_l1: and2 port map(latch_tmp, next_state(0), latch_en_internal);
+     latch_en <= latch_en_internal;
 
---     --------------------------------------------------------------------
---     -- DECODE cvt_latch_en WHEN state = 010 (S_DECIDE)
---     --------------------------------------------------------------------
-	invS0: inverter port map(next_state(0), nS0);
-	and_cvt0: and3 port map(nS2, next_state(1), nS0,  cvt_latch_en);
-	
-	--and_yes: or2 port map(latch_en_internal, cvt_latch_en, enable_test);
-    
+
+     invS21: inverter port map(state(2), notS2);
+     invS11: inverter port map(state(1), notS1);
+
+     and_l01: and2 port map(notS2, notS1, latch_tmp2);
+     and_l11: and2 port map(latch_tmp2, state(0), latch_en_internal2);
+     latch_en2 <= latch_en_internal2;
   
     --------------------------------------------------------------------
-    -- INPUT REGISTER (captures {start, rw, cvt} during S_LATCH)
+    -- INPUT REGISTER 
     --------------------------------------------------------------------
-    cpu_in <= start & read_write & cvt;
     busy     <= busy_internal;
 
-    InputRegister: input_reg
+    -- RW latch
+    RW_Reg : input_reg
       port map(
-        d_in   => cpu_in,
+        d_in   => read_write,
         clk    => clk,
         reset  => reset,
-        enable => latch_en_internal, --
-        q_out  => cpu_lat
+        enable => latch_en_internal,
+        q_out  => rw_lat
       );
-      
-      
 
-    start_l <= cpu_lat(2);
-    rw_lat  <= cpu_lat(1);
-    cvt_lat <= cpu_lat(0);
+    -- CVT latch
+    CVT_Reg : input_reg2
+      port map(
+        d_in   => cvt,
+        clk    => clk,
+        reset  => reset,
+        enable => latch_en_internal2,
+        q_out  => cvt_lat
+      );
+
+
 
     --------------------------------------------------------------------
     -- NEXT-STATE LOGIC

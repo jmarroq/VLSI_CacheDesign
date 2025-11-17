@@ -37,7 +37,7 @@ begin
   -- MUX (hold vs load)
   or_next  : or2  port map(d_hold, d_load, d_next);
 
-  -- Flip-flop (choose posedge or negedge depending on your use)
+  -- Flip-flop 
   ff0 : dff_pos port map(clk, d_next, reset, q0);
 
   q_out <= q0;

@@ -65,7 +65,10 @@ begin
   --------------------------------------------------------------------
   -- State decode (3-7 one-hot)
   --------------------------------------------------------------------
-  S2 <= state_in(2); S1 <= state_in(1); S0 <= state_in(0);
+  S2 <= state_in(2); 
+  S1 <= state_in(1);
+  S0 <= state_in(0);
+  
   invS2: inverter port map(S2, nS2);
   invS1: inverter port map(S1, nS1);
   invS0: inverter port map(S0, nS0);

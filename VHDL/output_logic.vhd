@@ -60,6 +60,7 @@ architecture structural of output_logic is
   
   -- DEC enable helper
   signal d_busy: std_logic;
+  signal mux_readhit: std_logic;
 
 begin
   --------------------------------------------------------------------
@@ -155,9 +156,10 @@ begin
   -- (D & write_hit & (c0_pos + c1_pos))
   --and_d_wh  : and2 port map(D, write_hit, d_and_wh);
   and_mux0  : and2 port map(write_hit, or_mux_pos, d_wh_mux);
+  or_hit1: or2 port map(d_wh_mux, read_hit, mux_readhit);
 
   -- Final OR with RD
-  or_mux0   : or2  port map(d_wh_mux, RD, mux_sel);
+  or_mux0   : or2  port map(mux_readhit, RD, mux_sel);
   
 
 end architecture structural;

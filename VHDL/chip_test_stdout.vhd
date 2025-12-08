@@ -31,7 +31,8 @@ architecture test of chip_test_stdout is
   signal Vdd, Gnd: std_logic := '1';
   signal cpu_data, mem_data: std_logic_vector(7 downto 0) := (others => 'Z');
   signal cpu_add, mem_add: std_logic_vector(5 downto 0) := (others => 'Z');
-  signal cpu_rd_wrn, reset, clk, start, clock, busy, mem_en: std_logic := '0';
+  signal cpu_rd_wrn, clk, start, clock, busy, mem_en: std_logic := '0';
+  signal reset: std_logic := '1';
 
   signal clk_count: integer := 0;
 
@@ -90,17 +91,9 @@ begin
   begin
 	-- Simulating input values from `chip_in.txt`
 	-- Replace each sequence below with patterns derived from the file
-cpu_add <= "ZZZZZZ"; cpu_data <= "ZZZZZZZZ"; cpu_rd_wrn <= 'Z'; start <= '0'; reset <= '1'; mem_data <= "ZZZZZZZZ";
-	clk_count <= clk_count + 1;
-	wait for 10 ns;
-	print_output;
+		wait for 20 ns;
 
-cpu_add <= "ZZZZZZ"; cpu_data <= "ZZZZZZZZ"; cpu_rd_wrn <= 'Z'; start <= '0'; reset <= '1'; mem_data <= "ZZZZZZZZ";
-	clk_count <= clk_count + 1;
-	wait for 10 ns;
-	print_output;
-
-cpu_add <= "000000"; cpu_data <= "ZZZZZZZZ"; cpu_rd_wrn <= '1'; start <= '1'; reset <= '0'; mem_data <= "ZZZZZZZZ";
+	cpu_add <= "000000"; cpu_data <= "ZZZZZZZZ"; cpu_rd_wrn <= '1'; start <= '1'; reset <= '0'; mem_data <= "ZZZZZZZZ";
 	clk_count <= clk_count + 1;
 	wait for 10 ns;
 	print_output;
@@ -268,6 +261,17 @@ cpu_add <= "ZZZZZZ"; cpu_data <= "ZZZZZZZZ"; cpu_rd_wrn <= 'Z'; start <= '0'; re
 cpu_add <= "ZZZZZZ"; cpu_data <= "ZZZZZZZZ"; cpu_rd_wrn <= 'Z'; start <= '0'; reset <= '0'; mem_data <= "ZZZZZZZZ";
 	clk_count <= clk_count + 1;
 	wait for 10 ns;
+	print_output;
+	
+
+	cpu_add <= "111111"; cpu_data <= "ZZZZZZZZ"; cpu_rd_wrn <= '1'; start <= '1'; reset <= '0'; mem_data <= "ZZZZZZZZ";
+	clk_count <= clk_count + 1;
+	wait for 10 ns;
+	print_output;
+
+cpu_add <= "ZZZZZZ"; cpu_data <= "ZZZZZZZZ"; cpu_rd_wrn <= 'Z'; start <= '0'; reset <= '0'; mem_data <= "ZZZZZZZZ";
+	clk_count <= clk_count + 1;
+	wait for 200 ns;
 	print_output;
   end process io_process;
 
